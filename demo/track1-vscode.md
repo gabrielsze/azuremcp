@@ -23,7 +23,7 @@ The Azure MCP Server runs **locally** (stdio, started by VS Code from [.vscode/m
 
 ## Demo script
 
-Copilot asks for confirmation before each tool call. Expand the call to show the audience the exact command and parameters.
+The server runs with `--mode all`, so each Azure MCP command is its own tool (23 in total) and Copilot calls them directly. Copilot asks for confirmation before each tool call. Expand the call to show the audience the exact tool and parameters. To keep the demo moving, choose **Always allow** for the read tools and keep confirmation on for the change tools.
 
 ### A. Explore: what's deployed?
 
@@ -35,7 +35,7 @@ Expect: `group_resource_list`. It lists the storage account, App Configuration s
 
 > Audit rg-azuremcp: does the storage account allow public blob access, and is HTTPS-only traffic enforced? List the role assignments in the resource group and which roles they grant.
 
-Expect: `storage_account_get` (public blob access off, HTTPS only on) and `role_assignment_list`. The role tool returns principal and role-definition IDs, not names, and only assignments made at the resource group or below. Copilot usually recognises built-in role IDs (for example `ba92f5b4…` is Storage Blob Data Contributor). Subscription-level roles such as your Owner assignment don't appear.
+Expect: `storage_account_get` (public blob access off, HTTPS only on) and `role_assignment_list`. The role tool returns principal and role-definition IDs, not names, and only assignments made at the resource group or below. To turn IDs into names, Copilot either recognises them (`ba92f5b4…` is Storage Blob Data Contributor) or runs `az role definition list` in the terminal. That second path is the Azure CLI, not MCP, so point it out or drop "which roles they grant" from the prompt. Subscription-level roles such as your Owner assignment don't appear.
 
 Stick to fields the tools return. If you ask about something they don't return (for example shared-key access or the web app's HTTPS-only flag), Copilot may answer from general knowledge instead of from Azure.
 

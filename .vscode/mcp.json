@@ -9,6 +9,10 @@
         "@azure/mcp@3.0.0",
         "server",
         "start",
+        // One tool per command. The default (one router tool per service) asks the client's
+        // model to pick the command via MCP sampling, which Copilot agent sessions don't
+        // support, so every call failed once and was retried.
+        "--mode", "all",
         // Only the services the demo uses, so Copilot picks the right tools.
         "--namespace", "group",
         "--namespace", "storage",

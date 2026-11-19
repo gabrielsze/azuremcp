@@ -60,7 +60,12 @@ try:
     print(f"server: {info['serverInfo']['name']} {info['serverInfo']['version']}")
 
     tools = [t["name"] for t in rpc("tools/list")["tools"]]
-    print(f"tools:  {', '.join(sorted(tools))}")
+    print(f"tools ({len(tools)}): {', '.join(sorted(tools))}")
+    demo_tools = {"group_resource_list", "storage_account_get", "role_assignment_list",
+                  "appconfig_kv_get", "appconfig_kv_set", "appconfig_kv_lock_set",
+                  "appservice_webapp_settings_update-appsettings", "appservice_webapp_change-state"}
+    if missing := demo_tools - set(tools):
+        sys.exit(f"missing demo tools: {sorted(missing)}")
 
     res = call("group_resource_list", {"resource-group": "rg-azuremcp"})
     if res.get("status") != 200:
