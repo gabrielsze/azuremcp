@@ -1,0 +1,26 @@
+{
+  "servers": {
+    // Track 1: Azure MCP Server running locally over stdio, acting as the `az login` user.
+    "azure-mcp-demo": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@azure/mcp@3.0.0",
+        "server",
+        "start",
+        // Only the services the demo uses, so Copilot picks the right tools.
+        "--namespace", "group",
+        "--namespace", "storage",
+        "--namespace", "role",
+        "--namespace", "appconfig",
+        "--namespace", "appservice"
+      ],
+      "env": {
+        // Use the `az login` account only. Without this the server may pick up a different
+        // signed-in account (e.g. a corporate VS Code account) from another tenant.
+        "AZURE_TOKEN_CREDENTIALS": "AzureCliCredential"
+      }
+    }
+  }
+}
