@@ -1,4 +1,4 @@
-# Demo targets: resource group, storage account (to audit) and App Configuration (to change).
+# Demo targets: resource group, storage account (to audit), App Configuration and App Service (to change).
 # Both demo tracks (VS Code Copilot and the Foundry agent) work against these via Azure MCP.
 
 terraform {
@@ -25,6 +25,12 @@ variable "resource_group_name" {
 variable "location" {
   type    = string
   default = "eastus2"
+}
+
+# B1 App Service quota is 0 in eastus2 for this subscription, so the web app lives elsewhere.
+variable "app_service_location" {
+  type    = string
+  default = "eastasia"
 }
 
 data "azurerm_client_config" "current" {}
@@ -75,6 +81,54 @@ resource "azurerm_role_assignment" "deployer_appconfig" {
   scope                = azurerm_app_configuration.demo.id
   role_definition_name = "App Configuration Data Owner"
   principal_id         = data.azurerm_client_config.current.object_id
+}
+
+# App Service: a standard web app the agents operate on (change app settings, restart, run diagnostics).
+# No code is deployed; the default site is enough for these operations.
+resource "azurerm_service_plan" "demo" {
+  name                = "asp-mcpdemo-${substr(sha1(azurerm_resource_group.rg.id), 0, 8)}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.app_service_location
+  os_type             = "Linux"
+  sku_name            = "B1"
+}
+
+resource "azurerm_linux_web_app" "demo" {
+  name                = "app-mcpdemo-${substr(sha1(azurerm_resource_group.rg.id), 0, 8)}"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.app_service_location
+  service_plan_id     = azurerm_service_plan.demo.id
+  https_only          = true
+
+  ftp_publish_basic_authentication_enabled       = false
+  webdeploy_publish_basic_authentication_enabled = false
+
+  site_config {
+    minimum_tls_version = "1.2"
+    ftps_state          = "Disabled"
+    application_stack {
+      python_version = "3.12"
+    }
+  }
+
+  # Starting values only. The agents change these during the demo,
+  # and scripts/02-reset-demo.sh puts them back.
+  app_settings = {
+    LOG_LEVEL            = "info"
+    FEATURE_NEW_CHECKOUT = "false"
+  }
+
+  lifecycle {
+    ignore_changes = [app_settings]
+  }
+}
+
+output "web_app_name" {
+  value = azurerm_linux_web_app.demo.name
+}
+
+output "web_app_url" {
+  value = "https://${azurerm_linux_web_app.demo.default_hostname}"
 }
 
 output "app_configuration_name" {

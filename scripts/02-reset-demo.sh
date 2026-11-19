@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# Step 2: seed (or reset) the App Configuration key-values used in the demo.
-# Safe to rerun before each demo: it unlocks the keys and restores the starting values.
+# Step 2: seed (or reset) the demo state. Safe to rerun before each demo.
+#   - App Configuration: unlocks the keys and restores the starting values
+#   - App Service: restores the starting app settings
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-ENDPOINT=$(terraform -chdir="$ROOT/infra/data" output -raw app_configuration_endpoint)
+TF="terraform -chdir=$ROOT/infra/data"
+ENDPOINT=$($TF output -raw app_configuration_endpoint)
+RG=$($TF output -raw resource_group_name)
+WEBAPP=$($TF output -raw web_app_name)
 
 KEYS=("Checkout:NewUI=false" "Checkout:MaxRetries=3" "Banner:Message=Welcome to the demo store")
 
@@ -29,3 +33,8 @@ done
 
 az appconfig kv list --endpoint "$ENDPOINT" --auth-mode login \
   --query "[].{key:key, value:value, locked:locked}" -o table 2>/dev/null
+
+echo "==> Resetting app settings on $WEBAPP"
+az webapp config appsettings set -g "$RG" -n "$WEBAPP" \
+  --settings LOG_LEVEL=info FEATURE_NEW_CHECKOUT=false \
+  --query "[?name=='LOG_LEVEL' || name=='FEATURE_NEW_CHECKOUT'].{name:name, value:value}" -o table
