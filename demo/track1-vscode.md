@@ -19,7 +19,7 @@ The Azure MCP Server runs **locally** (stdio, started by VS Code from [.vscode/m
    ```
 4. In VS Code, open this folder, run **MCP: List Servers** → `azure-mcp-demo` → **Start**, and trust it when prompted.
 5. Open Copilot Chat in **Agent** mode. In the tools picker, make sure `azure-mcp-demo` is enabled. If the Azure MCP VS Code extension is also installed, turn its server off for the demo so Copilot doesn't see two copies of every tool.
-6. Open the Azure portal on the App Configuration store → **Configuration explorer**, and the web app → **Environment variables**. These are where you show changes landing.
+6. Open the Azure portal on the App Configuration store → **Configuration explorer**, and the web app → **Settings → Environment variables** (not *App Service logs*). These are where you show changes landing.
 
 ## Demo script
 

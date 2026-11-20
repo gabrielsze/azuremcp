@@ -127,6 +127,10 @@ output "web_app_name" {
   value = azurerm_linux_web_app.demo.name
 }
 
+output "web_app_id" {
+  value = azurerm_linux_web_app.demo.id
+}
+
 output "web_app_url" {
   value = "https://${azurerm_linux_web_app.demo.default_hostname}"
 }
