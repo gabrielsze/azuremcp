@@ -27,7 +27,7 @@ variable "location" {
   default = "eastus2"
 }
 
-# B1 App Service quota is 0 in eastus2 for this subscription, so the web app lives elsewhere.
+# App Service quota (B1 and F1) is 0 in eastus2 for this subscription, so the web app lives elsewhere.
 variable "app_service_location" {
   type    = string
   default = "eastasia"
@@ -90,7 +90,8 @@ resource "azurerm_service_plan" "demo" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.app_service_location
   os_type             = "Linux"
-  sku_name            = "B1"
+  # F1 (free): MCAP governance automation downgrades B1 to F1 anyway. App settings and restart work on F1.
+  sku_name = "F1"
 }
 
 resource "azurerm_linux_web_app" "demo" {
@@ -104,6 +105,7 @@ resource "azurerm_linux_web_app" "demo" {
   webdeploy_publish_basic_authentication_enabled = false
 
   site_config {
+    always_on           = false # not supported on F1
     minimum_tls_version = "1.2"
     ftps_state          = "Disabled"
     application_stack {
