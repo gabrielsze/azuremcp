@@ -29,7 +29,7 @@ The server runs with `--mode all`, so each Azure MCP command is its own tool (23
 
 > What's deployed in the resource group rg-azuremcp?
 
-Expect: `group_resource_list`. It lists the storage account, App Configuration store, App Service plan, web app, and an Event Grid system topic Azure created for the storage account.
+Expect: `group_resource_list`. It lists the storage account, App Configuration store, App Service plan, web app, an Event Grid system topic Azure created for the storage account, and, once examples 2a and 2b are deployed, the MCP server's Container Apps environment and app and the Foundry resource and project.
 
 ### B. Audit: is it configured safely?
 
