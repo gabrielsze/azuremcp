@@ -78,6 +78,24 @@ Approve it. Azure returns **403 AuthorizationFailed**: the MCP server's identity
 ./scripts/02-reset-demo.sh
 ```
 
+## Bonus: the same agent, run by your own code
+
+[agents/local_agent.py](../agents/local_agent.py) runs the same model, tools, approvals and prompts, but the **Python process is the agent**: it connects to the MCP server itself, gives the server's tool list to `gpt-6.1-sol`, and calls the tools the model asks for.
+
+```bash
+agents/.venv/bin/python agents/local_agent.py demo --verbose   # prints the token claims and each MCP request/response
+agents/.venv/bin/python agents/local_agent.py chat
+```
+
+| | `foundry_agent.py` (hosted) | `local_agent.py` (self-run) |
+|---|---|---|
+| Who calls the MCP server | Foundry Agent Service | This script (MCP Python client) |
+| Token to the MCP server | Project managed identity, app role `Mcp.Tools.ReadWrite.All` | Your `az login`, delegated scope `Mcp.Tools.ReadWrite` |
+| Identity Azure sees | MCP server's managed identity | MCP server's managed identity (same 403 in D2) |
+| Approvals | Foundry `require_approval`, answered by the script | Enforced in the script before each MCP call |
+
+Use it to show what "an agent calling MCP" actually involves. In a real app this loop usually comes from a framework such as Microsoft Agent Framework, and the app would use its own managed identity instead of your login.
+
 ## Changing the agent
 
 Edit the instructions, tools or approval lists in [agents/foundry_agent.py](../agents/foundry_agent.py), then create a new version:
