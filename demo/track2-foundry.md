@@ -30,7 +30,7 @@ Foundry agent ──(project managed identity token, role Mcp.Tools.ReadWrite.Al
 
 **Terminal (works today):**
 ```bash
-agents/.venv/bin/python agents/foundry_agent.py demo     # scripted A–D, you approve each change with y/N
+agents/.venv/bin/python agents/foundry_agent.py demo     # steps through A–D: Enter sends each prompt (or type your own), y/N for changes
 agents/.venv/bin/python agents/foundry_agent.py chat     # free-form chat with the same approvals
 ```
 

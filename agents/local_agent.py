@@ -13,7 +13,8 @@ Loop for each prompt:
   3. call the MCP server, send each result back to the model
   4. repeat until the model answers in text
 
-Commands:  chat | demo     Options:  --auto-approve, --verbose (print each MCP request and response)
+Commands:  chat (type your own prompts) | demo (step through A-D; Enter sends, or type your own)
+Options:  --auto-approve, --verbose (print each MCP request and response)
 Run:  agents/.venv/bin/python agents/local_agent.py demo --verbose
 """
 import argparse
@@ -120,7 +121,10 @@ async def main():
             previous_id = None
             if args.command == "demo":
                 for title, prompt in DEMO_PROMPTS:
-                    print(f"=== {title}\nYou: {prompt}")
+                    print(f"=== {title}\nNext: {prompt}")
+                    if not args.auto_approve:
+                        prompt = input("Press Enter to send, or type your own prompt: ").strip() or prompt
+                    print(f"You: {prompt}")
                     previous_id = await run_turn(model_client, session, cfg, tools, prompt, previous_id,
                                                  args.auto_approve, args.verbose)
                 return
@@ -131,4 +135,7 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except* (KeyboardInterrupt, EOFError):  # the MCP client's task groups wrap these in an ExceptionGroup
+        print("\nStopped.")

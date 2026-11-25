@@ -4,7 +4,7 @@
 Commands:
   create   create a new version of the agent and point the agent's endpoint at it
   chat     interactive chat; you approve or reject each change the agent wants to make
-  demo     run the scripted demo prompts (use cases A-D) with the same approval prompts
+  demo     step through the demo prompts (A-D): Enter sends each one, or type your own instead
 
 Options:
   --auto-approve   approve every request without asking (for rehearsals and smoke tests)
@@ -177,7 +177,10 @@ def main():
             previous_id = None
             if args.command == "demo":
                 for title, prompt in DEMO_PROMPTS:
-                    print(f"=== {title}\nYou: {prompt}")
+                    print(f"=== {title}\nNext: {prompt}")
+                    if not args.auto_approve:
+                        prompt = input("Press Enter to send, or type your own prompt: ").strip() or prompt
+                    print(f"You: {prompt}")
                     previous_id = run_turn(client, prompt, previous_id, args.auto_approve)
                 return
 
@@ -187,4 +190,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (KeyboardInterrupt, EOFError):
+        print("\nStopped.")
